@@ -11,12 +11,12 @@ import onnxruntime as rt
 import onnx
 import gspread
 from google.oauth2.service_account import Credentials
-from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaIoBaseUpload
 from googleapiclient.discovery import build
 
 
 scopes = ["https://www.googleapis.com/auth/spreadsheets", 'https://www.googleapis.com/auth/drive']
-creds = Credentials.from_service_account_file("/etc/secrets/creds.json", scopes=scopes)
+creds = Credentials.from_service_account_file("creds.json", scopes=scopes)
 service = build('drive', 'v3', credentials=creds)
 client = gspread.authorize(creds)
 sheet_id = "1TcKkR2PkMSnJS76b_LioEbjJSOprZm4JXCIcl1WVFpg"
@@ -33,7 +33,7 @@ def upload_drive(formatted_time, count, img):
     }
 
     # media = MediaFileUpload(f"{formatted_time}.jpg", mimetype="image/jpeg")
-    media = MediaFileUpload(img, mimetype="image/jpeg", resumable=True)
+    media = MediaIoBaseUpload(img, mimetype="image/jpeg", resumable=True)
     file = service.files().create(
         body = metadata,
         media_body=media,
@@ -110,12 +110,13 @@ async def predict(request: Request):
     # cv2.imwrite(f"{formatted_time}.jpg", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
     
     image_buffer = io.BytesIO()
-    img.save(image_buffer, format="JPEG")
+    pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    pil_img.save(image_buffer, format="JPEG")
     image_buffer.seek(0)
 
     upload_drive(formatted_time, count, image_buffer)
     print(f"count:{count}")
     return {"count": count}
     
-# if __name__ == "__main__":
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
