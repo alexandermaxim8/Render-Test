@@ -102,12 +102,12 @@ def handle_head():
     
 @app.post("/predict")
 async def predict(request: Request):
+    tz = timezone('Asia/Jakarta')
     formatted_time = datetime.now(tz).strftime("%Y-%m-%d_%H-%M-%S")
     image_data = await request.body()
     img = Image.open(io.BytesIO(image_data))
     img = np.array(img)
     img, count = predict_count(img)
-    tz = timezone('Asia/Jakarta')
     worksheet.append_row([formatted_time, count], table_range='A1')
     # cv2.imwrite(f"{formatted_time}.jpg", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
     
