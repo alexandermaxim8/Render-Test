@@ -112,7 +112,7 @@ async def predict(request: Request):
     # cv2.imwrite(f"{formatted_time}.jpg", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
     
     image_buffer = io.BytesIO()
-    pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    pil_img = Image.fromarray(img)
     pil_img.save(image_buffer, format="JPEG")
     image_buffer.seek(0)
 
