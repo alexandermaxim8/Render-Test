@@ -13,6 +13,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 from googleapiclient.http import MediaIoBaseUpload
 from googleapiclient.discovery import build
+from pytz import timezone
 
 
 scopes = ["https://www.googleapis.com/auth/spreadsheets", 'https://www.googleapis.com/auth/drive']
@@ -105,12 +106,13 @@ async def predict(request: Request):
     img = Image.open(io.BytesIO(image_data))
     img = np.array(img)
     img, count = predict_count(img)
-    formatted_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    tz = timezone('Asia/Jakarta')
+    formatted_time = datetime.now(tz).strftime("%Y-%m-%d_%H-%M-%S")
     worksheet.append_row([formatted_time, count], table_range='A1')
     # cv2.imwrite(f"{formatted_time}.jpg", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
     
     image_buffer = io.BytesIO()
-    pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     pil_img.save(image_buffer, format="JPEG")
     image_buffer.seek(0)
 
