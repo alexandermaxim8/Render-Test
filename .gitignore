@@ -1,0 +1,10 @@
+yolov8n
+yolo11m.pt
+test_onnx.py
+yolo_to_onnx.py
+main.py
+esp.py
+*.jpg
+creds.json
+venv/
+ESP32Cam/
