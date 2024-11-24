@@ -9,3 +9,4 @@ esp.py
 creds.json
 venv/
 ESP32Cam/
+ESP32Cam_v2/
