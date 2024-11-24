@@ -94,6 +94,10 @@ def predict_count(img_init):
 @app.get("/")
 async def root():
     return {"Hello": "Mundo"}
+
+@app.head("/")
+def handle_head():
+    return {}
     
 @app.post("/predict")
 async def predict(request: Request):
