@@ -26,13 +26,14 @@ worksheet = sheet.get_worksheet(0)
 
 app = FastAPI()
 
-def upload_drive(formatted_time, count):
+def upload_drive(formatted_time, count, img):
     metadata = {
         'name': formatted_time,
         'parents': [folder_id]
     }
 
-    media = MediaFileUpload(f"{formatted_time}.jpg", mimetype="image/jpeg")
+    # media = MediaFileUpload(f"{formatted_time}.jpg", mimetype="image/jpeg")
+    media = MediaFileUpload(img, mimetype="image/jpeg", resumable=True)
     file = service.files().create(
         body = metadata,
         media_body=media,
@@ -42,13 +43,13 @@ def upload_drive(formatted_time, count):
 
 def predict_count(img_init):
     h_init, w_init, _ = img_init.shape
-    print(f"Size: {w_init} x {h_init} px")
+    # print(f"Size: {w_init} x {h_init} px")
     scale_x = w_init / 640
     scale_y = h_init / 640
     img = cv2.resize(img_init, (640, 640))
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) 
-    img = np.transpose(img, (2, 0, 1))  # HWC to CHW
-    img = np.expand_dims(img, axis=0)  # Add batch dimension
+    img = np.transpose(img, (2, 0, 1)) 
+    img = np.expand_dims(img, axis=0) 
     img = img.astype(np.float32) / 255.0  
 
     ortvalue = np.array(img)
@@ -71,27 +72,21 @@ def predict_count(img_init):
             conf.append(float(person_conf))
 
     indices = cv2.dnn.NMSBoxes(boxes, conf, 0.4, 0.9)
-    # print(len(boxes))
-    # print(len(indices))
 
     final_boxes = []
     final_confidences = []
 
 
-    for i in indices:  # Indices is already iterable
+    for i in indices:
         final_boxes.append(boxes[i])
         final_confidences.append(conf[i])
 
-    # Draw the final detections on the image
     for box, confidence in zip(final_boxes, final_confidences):
         x1, y1, x2, y2 = box
-        # print(x1)
 
-        # Draw the bounding box
         img_init = cv2.rectangle(img_init, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
-        # Add the confidence score as text
-        label = f"Conf: {confidence:.2f}"  # Format confidence to 2 decimal places
+        label = f"Conf: {confidence:.2f}"
         img_init = cv2.putText(img_init, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     return img_init, len(indices)
@@ -108,8 +103,13 @@ async def predict(request: Request):
     img, count = predict_count(img)
     formatted_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     worksheet.append_row([formatted_time, count], table_range='A1')
-    cv2.imwrite(f"{formatted_time}.jpg", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
-    upload_drive(formatted_time, count)
+    # cv2.imwrite(f"{formatted_time}.jpg", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    
+    image_buffer = io.BytesIO()
+    img.save(image_buffer, format="JPEG")
+    image_buffer.seek(0)
+
+    upload_drive(formatted_time, count, image_buffer)
     print(f"count:{count}")
     return {"count": count}
     
