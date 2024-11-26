@@ -17,11 +17,11 @@ from pytz import timezone
 
 
 scopes = ["https://www.googleapis.com/auth/spreadsheets", 'https://www.googleapis.com/auth/drive']
-creds = Credentials.from_service_account_file("creds.json", scopes=scopes)
+creds = Credentials.from_service_account_file("creds_daniel.json", scopes=scopes)
 service = build('drive', 'v3', credentials=creds)
 client = gspread.authorize(creds)
-sheet_id = "1TcKkR2PkMSnJS76b_LioEbjJSOprZm4JXCIcl1WVFpg"
-folder_id = "1Q9me-FIheyGveRIkqp9IdyLqK1KjQgBY"
+sheet_id = "1pnXjIFMbyKF9WEU6MDL1NPN1KflzV-2_9SjRwoNwd5I"
+folder_id = "1rvlkrnmj9JvtrMWzB5BD0Cu4VJCSbkXT"
 sheet = client.open_by_key(sheet_id)
 worksheet = sheet.get_worksheet(0)
 
