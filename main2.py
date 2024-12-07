@@ -21,7 +21,7 @@ creds = Credentials.from_service_account_file("creds_daniel.json", scopes=scopes
 service = build('drive', 'v3', credentials=creds)
 client = gspread.authorize(creds)
 sheet_id = "1pnXjIFMbyKF9WEU6MDL1NPN1KflzV-2_9SjRwoNwd5I"
-folder_id = "1rvlkrnmj9JvtrMWzB5BD0Cu4VJCSbkXT"
+folder_id = "18BKC7gVgWPYZW_9C9DawvC3S_8tau9DR"
 sheet = client.open_by_key(sheet_id)
 worksheet = sheet.get_worksheet(0)
 
